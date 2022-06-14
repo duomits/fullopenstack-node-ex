@@ -1,8 +1,23 @@
 const express = require('express')
-const app = express()
-app.use(express.json())
+const morgan = require('morgan')
 const time = require('express-timestamp')
+const app = express()
+
+app.use(express.json())
 app.use(time.init)
+//app.use(morgan('tiny'))
+morgan.token('request-body', (req,res) => JSON.stringify(req.body))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :request-body'))
+
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+}
+app.use(requestLogger)
+
 
 let persons = [
     { 
